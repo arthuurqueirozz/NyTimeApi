@@ -1,6 +1,5 @@
-using Core.Entities;
+using Core.Ports.Auth;
 using Core.Ports.Repositories.User;
-using Core.Ports.Services.Auth;
 
 namespace Core.Services.Auth
 {
