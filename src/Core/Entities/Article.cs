@@ -5,7 +5,7 @@ public class Article
     public Guid Id { get; set; } = Guid.NewGuid();
 
 
-    public string NytId { get; set; } = string.Empty; // _id ou uri
+    public string NytId { get; set; } = string.Empty; 
     public string Title { get; set; } = string.Empty;
     public string Abstract { get; set; } = string.Empty;
     public string Section { get; set; } = string.Empty;

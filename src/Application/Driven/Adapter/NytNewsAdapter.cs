@@ -8,16 +8,20 @@ namespace Application.Driven.Adapter
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
+        private readonly string _articleSearchUrl;
+        private readonly string _mostPopularUrl;
 
-        public NytNewsAdapter(HttpClient httpClient, string apiKey)
+        public NytNewsAdapter(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _apiKey = apiKey;
+            _apiKey = configuration["nytApiKey"] ?? throw new ArgumentNullException("nytApiKey not configured");
+            _articleSearchUrl = configuration["articleSearchApi"] ?? throw new ArgumentNullException("articleSearchApi not configured");
+            _mostPopularUrl = configuration["mostPopularUrl"] ?? throw new ArgumentNullException("mostPopularUrl not configured");
         }
 
         public async Task<IEnumerable<Article>> SearchArticlesAsync(string keyword, string? section = null, int page = 0)
         {
-            var url = $"https://api.nytimes.com/svc/search/v2/articlesearch.json?q={keyword}&page={page}&api-key={_apiKey}";
+            var url = $"{_articleSearchUrl}?q={keyword}&page={page}&api-key={_apiKey}";
 
             if (!string.IsNullOrEmpty(section))
                 url += $"&section_name={section}";
@@ -32,11 +36,8 @@ namespace Application.Driven.Adapter
                 .GetProperty("response")
                 .GetProperty("docs");
 
-            var articles = new List<Article>();
-
-            foreach (var doc in docs.EnumerateArray())
-            {
-                articles.Add(new Article
+            return docs.EnumerateArray()
+                .Select(doc => new Article
                 {
                     NytId = doc.GetProperty("_id").GetString() ?? "",
                     Title = doc.GetProperty("headline").GetProperty("main").GetString() ?? "",
@@ -47,17 +48,14 @@ namespace Application.Driven.Adapter
                     PublishedAt = DateTime.TryParse(doc.GetProperty("pub_date").GetString(), out var dt) ? dt : DateTime.UtcNow,
                     Url = doc.GetProperty("web_url").GetString() ?? "",
                     ThumbnailUrl = doc.TryGetProperty("multimedia", out var media) && media.GetArrayLength() > 0
-                        ? $"https://static01.nyt.com/{media[0].GetProperty("url").GetString()}"
-                        : ""
-                });
-            }
-
-            return articles;
+                        ? $"https://static01.nyt.com/{media[0].GetProperty("url").GetString()}" : ""
+                })
+                .ToList();
         }
 
         public async Task<IEnumerable<Article>> GetMostPopularAsync(int period = 7)
         {
-            var url = $"https://api.nytimes.com/svc/mostpopular/v2/viewed/{period}.json?api-key={_apiKey}";
+            var url = $"{_mostPopularUrl}/{period}.json?api-key={_apiKey}";
             var response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
@@ -69,18 +67,43 @@ namespace Application.Driven.Adapter
 
             foreach (var result in results.EnumerateArray())
             {
+                var nytId = result.TryGetProperty("uri", out var uriProp)
+                    ? uriProp.GetString() ?? Guid.NewGuid().ToString()
+                    : result.TryGetProperty("id", out var idProp)
+                        ? idProp.GetRawText()
+                        : Guid.NewGuid().ToString();
+
+                var thumbnailUrl = string.Empty;
+                if (result.TryGetProperty("media", out var media) && media.GetArrayLength() > 0)
+                {
+                    var mediaMeta = media[0].GetProperty("media-metadata");
+                    if (mediaMeta.GetArrayLength() >= 3)
+                    {
+                        thumbnailUrl = mediaMeta[2].GetProperty("url").GetString() ?? string.Empty;
+                    }
+                    else if (mediaMeta.GetArrayLength() > 0)
+                    {
+                        thumbnailUrl = mediaMeta[0].GetProperty("url").GetString() ?? string.Empty;
+                    }
+                }
+
+                var author = result.TryGetProperty("byline", out var bylineProp)
+                    ? bylineProp.GetString() ?? string.Empty : string.Empty;
+
+                var publishedDate = result.TryGetProperty("published_date", out var pubDateProp) &&
+                                    DateTime.TryParse(pubDateProp.GetString(), out var dt) ? dt : DateTime.UtcNow;
+
                 articles.Add(new Article
                 {
-                    NytId = result.GetProperty("id").GetRawText(), // pode ser int/string
-                    Title = result.GetProperty("title").GetString() ?? "",
-                    Abstract = result.GetProperty("abstract").GetString() ?? "",
-                    Section = result.TryGetProperty("section", out var section) ? section.GetString() ?? "" : "",
-                    Author = result.TryGetProperty("byline", out var byline) ? byline.GetString() ?? "" : "",
-                    PublishedAt = DateTime.TryParse(result.GetProperty("published_date").GetString(), out var dt) ? dt : DateTime.UtcNow,
-                    Url = result.GetProperty("url").GetString() ?? "",
-                    ThumbnailUrl = result.TryGetProperty("media", out var media) && media.GetArrayLength() > 0
-                        ? media[0].GetProperty("media-metadata")[0].GetProperty("url").GetString() ?? ""
-                        : ""
+                    NytId = nytId,
+                    Title = result.TryGetProperty("title", out var titleProp) ? titleProp.GetString() ?? string.Empty : string.Empty,
+                    Abstract = result.TryGetProperty("abstract", out var absProp) ? absProp.GetString() ?? string.Empty : string.Empty,
+                    Section = result.TryGetProperty("section", out var sectionProp) ? sectionProp.GetString() ?? string.Empty : string.Empty,
+                    Subsection = result.TryGetProperty("subsection", out var subProp) ? subProp.GetString() ?? string.Empty : string.Empty,
+                    Author = author,
+                    PublishedAt = publishedDate,
+                    Url = result.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? string.Empty : string.Empty,
+                    ThumbnailUrl = thumbnailUrl
                 });
             }
 

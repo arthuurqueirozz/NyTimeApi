@@ -24,10 +24,6 @@
     <ItemGroup>
       <Folder Include="DependencyInjection\v1\Services\" />
       <Folder Include="DependencyInjection\v1\Validators\" />
-      <Folder Include="Driving\Http\Dtos\" />
-      <Folder Include="Driving\Http\v1\Configuration\" />
-      <Folder Include="Driving\Http\v1\Routes\" />
-      <Folder Include="Driving\Http\v1\Validators\" />
     </ItemGroup>
 
     <ItemGroup>
