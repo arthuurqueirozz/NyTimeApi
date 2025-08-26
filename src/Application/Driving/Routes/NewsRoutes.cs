@@ -19,7 +19,7 @@ public static class NewsRoutes
             .WithName("GetPopularArticles")
             .Produces<IEnumerable<Article>>()
             .WithSummary("Busca os artigos mais populares")
-            .WithDescription("Obtém a lista de artigos mais populares do New York Times em um determinado período.");
+            .WithDescription("Obtém a lista de artigos mais populares do New York Times em um determinado período. 1 = último dia, 7 = última semana e 30 = último mês.");
     }
 
     private static async Task<IResult> SearchNyTimesArticles(string keyword, string? section, int? page, INewsService newsService)

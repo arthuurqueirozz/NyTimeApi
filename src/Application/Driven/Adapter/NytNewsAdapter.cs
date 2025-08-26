@@ -53,7 +53,7 @@ namespace Application.Driven.Adapter
                 .ToList();
         }
 
-        public async Task<IEnumerable<Article>> GetMostPopularAsync(int period = 7)
+        public async Task<IEnumerable<Article>> GetMostPopularAsync(int period)
         {
             var url = $"{_mostPopularUrl}/{period}.json?api-key={_apiKey}";
             var response = await _httpClient.GetAsync(url);
