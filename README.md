@@ -1,11 +1,3 @@
-Com certeza\! Criei um `README.md` completo para o seu projeto, seguindo exatamente as diretrizes e os requisitos detalhados no documento do desafio.
-
-Este arquivo explica o que é o projeto, quais tecnologias foram usadas, e fornece um guia passo a passo para que qualquer pessoa consiga configurar e executar a aplicação localmente.
-
-Aqui está o conteúdo para o seu arquivo `README.md`:
-
------
-
 # NyTimesApi
 
 ## Visão Geral do Projeto
@@ -67,7 +59,7 @@ As configurações sensíveis, como a chave da API e a string de conexão, devem
   "articleSearchApi": "https://api.nytimes.com/svc/search/v2/articlesearch.json",
   "mostPopularUrl": "https://api.nytimes.com/svc/mostpopular/v2/viewed",
   "Jwt": {
-    "Key": "SUA_CHAVE_SECRETA_SUPER_LONGA_E_SEGURA_PARA_GERAR_O_TOKEN_JWT",
+    "Key": "SUA_CHAVE_JWT",
     "Issuer": "NyTimeApi",
     "Audience": "NyTimeApiUsers"
   }
