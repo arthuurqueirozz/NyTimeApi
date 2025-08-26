@@ -6,10 +6,12 @@ namespace Core.Services.Auth
     public class AuthService :  IAuthService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IPasswordHasher _passwordHasher; 
 
-        public AuthService(IUserRepository userRepository)
+        public AuthService(IUserRepository userRepository, IPasswordHasher passwordHasherService)
         {
             _userRepository = userRepository;
+            _passwordHasher = passwordHasherService;
         }
 
         public async Task<Entities.User> RegisterAsync(string username, string email, string passwordHash)
@@ -21,18 +23,21 @@ namespace Core.Services.Auth
             {
                 Username = username,
                 Email = email,
-                PasswordHash = passwordHash
+                PasswordHash = passwordHash 
             };
 
             await _userRepository.AddAsync(user);
             return user;
         }
 
-        public async Task<Entities.User?> ValidateUserAsync(string username, string passwordHash)
+        public async Task<Entities.User?> ValidateUserAsync(string username, string password)
         {
             var user = await _userRepository.GetByUsernameAsync(username);
-            if (user == null || user.PasswordHash != passwordHash)
+            
+            if (user == null || !_passwordHasher.VerifyPassword(password, user.PasswordHash))
+            {
                 return null;
+            }
 
             return user;
         }

@@ -8,10 +8,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
         <PackageReference Include="FluentValidation" Version="12.0.0" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
         <PackageReference Include="Flurl.Http" Version="4.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.19" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.19"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.19" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.19" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
@@ -19,11 +23,6 @@
       <Content Include="..\..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="DependencyInjection\v1\Services\" />
-      <Folder Include="DependencyInjection\v1\Validators\" />
     </ItemGroup>
 
     <ItemGroup>
