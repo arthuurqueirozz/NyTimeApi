@@ -18,7 +18,7 @@ public class NewsService : INewsService
         return await _nytNewsPort.SearchArticlesAsync(keyword, section, page);
     }
 
-    public async Task<IEnumerable<Article>> GetMostPopularAsync(int period = 7)
+    public async Task<IEnumerable<Article>> GetMostPopularAsync(int period)
     {
         return await _nytNewsPort.GetMostPopularAsync(period);
     }

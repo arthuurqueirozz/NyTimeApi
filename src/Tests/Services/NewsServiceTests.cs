@@ -35,7 +35,7 @@ public class NewsServiceTests
         var expectedArticles = new List<Article> { new Article { Title = "Popular Article 1" } };
         _nytNewsPortMock.Setup(p => p.GetMostPopularAsync(7)).ReturnsAsync(expectedArticles);
 
-        var result = await _newsService.GetMostPopularAsync();
+        var result = await _newsService.GetMostPopularAsync(7);
 
         result.Should().BeEquivalentTo(expectedArticles);
         _nytNewsPortMock.Verify(p => p.GetMostPopularAsync(7), Times.Once);

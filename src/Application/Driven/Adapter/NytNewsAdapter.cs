@@ -24,7 +24,7 @@ namespace Application.Driven.Adapter
             var url = $"{_articleSearchUrl}?q={keyword}&page={page}&api-key={_apiKey}";
 
             if (!string.IsNullOrEmpty(section))
-                url += $"&section_name={section}";
+                url += $"&fq=news_desk:(\"{section}\")";
 
             var response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
@@ -47,7 +47,7 @@ namespace Application.Driven.Adapter
                     Author = doc.GetProperty("byline").TryGetProperty("original", out var byline) ? byline.GetString() ?? "" : "",
                     PublishedAt = DateTime.TryParse(doc.GetProperty("pub_date").GetString(), out var dt) ? dt : DateTime.UtcNow,
                     Url = doc.GetProperty("web_url").GetString() ?? "",
-                    ThumbnailUrl = doc.TryGetProperty("multimedia", out var media) && media.GetArrayLength() > 0
+                    ThumbnailUrl = doc.TryGetProperty("multimedia", out var media) && media.ValueKind == JsonValueKind.Array && media.GetArrayLength() > 0
                         ? $"https://static01.nyt.com/{media[0].GetProperty("url").GetString()}" : ""
                 })
                 .ToList();

@@ -49,15 +49,29 @@ public static class UserArticlesRoutes
         }
 
         private static async Task<IResult> SaveArticleForUser(
-            [FromBody] SaveArticleRequest request, 
+            [FromBody] SaveArticleRequest request,
             HttpContext httpContext, 
             IUserArticlesService userArticlesService)
         {
             var userId = GetCurrentUserId(httpContext);
             if (userId == Guid.Empty) return Results.Unauthorized();
+            
+            var articleToSave = new Article
+            {
+                NytId = request.NytId,
+                Title = request.Title,
+                Abstract = request.Abstract,
+                Section = request.Section,
+                Subsection = request.Subsection,
+                Author = request.Author,
+                PublishedAt = request.PublishedAt,
+                Url = request.Url,
+                ThumbnailUrl = request.ThumbnailUrl
+            };
 
-            await userArticlesService.SaveArticleAsync(request.Article, userId);
-            return Results.Created($"/api/user/articles/{request.Article.Id}", request.Article);
+            await userArticlesService.SaveArticleAsync(articleToSave, userId);
+    
+            return Results.Created($"/api/user/articles/{articleToSave.Id}", articleToSave);
         }
 
         private static async Task<IResult> DeleteArticleForUser(Guid articleId, HttpContext httpContext, IUserArticlesService userArticlesService)

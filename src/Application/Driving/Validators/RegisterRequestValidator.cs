@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Application.Driving.Validators;
 
-public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
+public abstract class RegisterRequestValidator : AbstractValidator<RegisterRequest>
 {
     public RegisterRequestValidator()
     {
