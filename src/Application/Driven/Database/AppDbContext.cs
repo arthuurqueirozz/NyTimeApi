@@ -12,15 +12,13 @@ namespace Application.Driven.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // User
             modelBuilder.Entity<User>()
                 .HasKey(u => u.Id);
 
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
-
-            // Article
+            
             modelBuilder.Entity<Article>()
                 .HasKey(a => a.Id);
 
