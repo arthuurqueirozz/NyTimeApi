@@ -30,11 +30,11 @@ namespace Core.Services.Auth
             return user;
         }
 
-        public async Task<Entities.User?> ValidateUserAsync(string username, string password)
+        public async Task<Entities.User?> ValidateUserAsync(string username, string passwordHash)
         {
             var user = await _userRepository.GetByUsernameAsync(username);
             
-            if (user == null || !_passwordHasher.VerifyPassword(password, user.PasswordHash))
+            if (user == null || !_passwordHasher.VerifyPassword(passwordHash, user.PasswordHash))
             {
                 return null;
             }
